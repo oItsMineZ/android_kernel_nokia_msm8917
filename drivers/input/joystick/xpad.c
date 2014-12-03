@@ -992,7 +992,7 @@ static int xpad_led_probe(struct usb_xpad *xpad)
 		goto err_free_mem;
 	}
 
-	snprintf(led->name, sizeof(led->name), "xpad%d", xpad->pad_nr);
+	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->pad_nr);
 	led->xpad = xpad;
 
 	led_cdev = &led->led_cdev;
