@@ -343,7 +343,7 @@ struct usb_xpad {
 
 	int mapping;			/* map d-pad to buttons or to axes */
 	int xtype;			/* type of xbox device */
-	int pad_nr;			/* the order x360 pads were attached */
+	unsigned long pad_nr;			/* the order x360 pads were attached */
 	const char *name;		/* name of the device */
 };
 
