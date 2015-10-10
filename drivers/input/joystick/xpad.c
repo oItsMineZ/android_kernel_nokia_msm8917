@@ -343,7 +343,7 @@ struct usb_xpad {
 
 	int mapping;			/* map d-pad to buttons or to axes */
 	int xtype;			/* type of xbox device */
-	unsigned long pad_nr;			/* the order x360 pads were attached */
+	int pad_nr;			/* the order x360 pads were attached */
 	const char *name;		/* name of the device */
 };
 
@@ -992,7 +992,7 @@ static int xpad_led_probe(struct usb_xpad *xpad)
 		goto err_free_mem;
 	}
 
-	snprintf(led->name, sizeof(led->name), "xpad%lu", xpad->pad_nr);
+	snprintf(led->name, sizeof(led->name), "xpad%d", xpad->pad_nr);
 	led->xpad = xpad;
 
 	led_cdev = &led->led_cdev;
