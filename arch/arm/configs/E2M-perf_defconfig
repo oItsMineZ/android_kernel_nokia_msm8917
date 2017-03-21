@@ -1,3 +1,7 @@
+#
+# Automatically generated file; DO NOT EDIT.
+# Linux/arm 3.18.140 Kernel Configuration
+#
 CONFIG_EARLY_IOREMAP=y
 CONFIG_LOCALVERSION="-perf"
 # CONFIG_USELIB is not set
