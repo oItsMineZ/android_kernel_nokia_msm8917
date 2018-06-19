@@ -23,6 +23,8 @@
 #include <linux/err.h>
 #include <linux/string.h>
 #include <linux/device.h>
+#include <linux/display_state.h>
+
 #include "mdss_dsi.h"
 #include "mdss_debug.h"
 #ifdef TARGET_HW_MDSS_HDMI
@@ -36,6 +38,12 @@
 
 DEFINE_LED_TRIGGER(bl_led_trigger);
 
+bool display_on = true;
+
+bool is_display_on()
+{
+	return display_on;
+}
 //SW4-HL-Display-BBox-03*{_20161028
 //SW4-HL-Display-BBox-02*{_20161021
 //SW4-HL-Display-BBox-01*{_20160804
@@ -1087,6 +1095,8 @@ static int mdss_dsi_panel_on(struct mdss_panel_data *pdata)
 		return -EINVAL;
 	}
 
+	display_on = true;
+
 	pinfo = &pdata->panel_info;
 	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
@@ -1475,6 +1485,8 @@ static int mdss_dsi_panel_off(struct mdss_panel_data *pdata)
 	//FIHTDC - gatycclu - MA3-589 - Show Driver IC status}
 
 	mdss_dsi_panel_off_hdmi(ctrl, pinfo);
+
+	display_on = false;
 
 end:
 	/* clear idle state */
