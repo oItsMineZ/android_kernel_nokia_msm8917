@@ -1807,9 +1807,11 @@ err_netdev:
 	free_irq(ndev->irq, ks);
 
 err_irq:
+err_id:
 	if (gpio_is_valid(gpio))
 		gpio_set_value(gpio, 0);
-err_id:
+	regulator_disable(ks->vdd_reg);
+	regulator_disable(ks->vdd_io);
 err_gpio:
 	free_netdev(ndev);
 	return ret;
