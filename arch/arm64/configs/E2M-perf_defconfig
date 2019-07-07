@@ -703,7 +703,7 @@ CONFIG_DM_VERITY=n
 
 CONFIG_PSI=y
 # CONFIG_PSI_DEFAULT_DISABLED is not set
-# CONFIG_KSM is not set
+CONFIG_KSM=y
 # CONFIG_MMPROFILE is not set
 # CONFIG_ZSM is not set
 
