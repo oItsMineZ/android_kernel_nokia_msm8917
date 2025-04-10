@@ -1,0 +1,49 @@
+name: Build (CI)
+run-name: 'CI: Build ${{ github.event.inputs.version }} from ${{ github.sha }}'
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Kernel Version'
+        required: true
+        default: 'v'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      matrix:
+        device: [E2M]
+
+    steps:
+      - name: Checkout Tree
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Build Environment
+        run: |
+          sudo apt update && sudo apt upgrade -y && sudo apt install gcc-aarch64-linux-gnu -y
+          wget http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb http://security.ubuntu.com/ubuntu/pool/universe/p/python2.7/libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb  
+          sudo apt install ./libpython2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./libpython2.7-stdlib_2.7.18-13ubuntu1.5_amd64.deb ./python2.7-minimal_2.7.18-13ubuntu1.5_amd64.deb ./python2.7_2.7.18-13ubuntu1.5_amd64.deb
+          sudo ln -s /usr/bin/python2.7 /usr/bin/python2
+          
+      - name: Set Environment Variable
+        run: |
+          SHA=$(git rev-parse --short ${{ github.sha }})
+          echo BUILD_DATE=$(date +'%Y%m%d') >> $GITHUB_ENV
+          echo BUILD_KERNEL_VERSION=CI-${{ github.event.inputs.version }}-$SHA >> $GITHUB_ENV
+          
+      - name: Building Kernel
+        run: |
+            bash build.sh -m ${{ matrix.device }} -v ${{ env.BUILD_KERNEL_VERSION }} -r n
+
+      - name: Upload Kernel
+        uses: actions/upload-artifact@v4
+        with:
+          name: "oItsMineZKernel-${{ env.BUILD_KERNEL_VERSION }}-${{ matrix.device }}-${{ env.BUILD_DATE }}"
+          path: "build/out/${{ matrix.device }}/zip/*"
+          if-no-files-found: error
