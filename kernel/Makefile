@@ -129,6 +129,9 @@ X509_CERTIFICATES-raw := $(sort $(foreach CERT,$(X509_CERTIFICATES-y), \
 				$(or $(realpath $(CERT)),$(CERT))))
 X509_CERTIFICATES := $(subst $(realpath $(objtree))/,,$(X509_CERTIFICATES-raw))
 
+# Exclude verity_dev_keys.der.x509
+X509_CERTIFICATES := $(filter-out %verity_dev_keys.der.x509,$(X509_CERTIFICATES))
+
 ifeq ($(X509_CERTIFICATES),)
 $(warning *** No X.509 certificates found ***)
 endif
@@ -168,57 +171,8 @@ ifndef CONFIG_MODULE_SIG_HASH
 $(error Could not determine digest type to use from kernel config)
 endif
 
-# FIH, use fih module key {
-ifneq ($(CONFIG_MODULE_SIG_FIH),y)
-# FIH, use fih module key }
-
-signing_key.priv signing_key.x509: x509.genkey
-	@echo "###"
-	@echo "### Now generating an X.509 key pair to be used for signing modules."
-	@echo "###"
-	@echo "### If this takes a long time, you might wish to run rngd in the"
-	@echo "### background to keep the supply of entropy topped up.  It"
-	@echo "### needs to be run as root, and uses a hardware random"
-	@echo "### number generator if one is available."
-	@echo "###"
-	openssl req -new -nodes -utf8 -$(CONFIG_MODULE_SIG_HASH) -days 36500 \
-		-batch -x509 -config x509.genkey \
-		-outform DER -out signing_key.x509 \
-		-keyout signing_key.priv 2>&1
-	@echo "###"
-	@echo "### Key pair generated."
-	@echo "###"
-
-x509.genkey:
-	@echo Generating X.509 key generation config
-	@echo  >x509.genkey "[ req ]"
-	@echo >>x509.genkey "default_bits = 4096"
-	@echo >>x509.genkey "distinguished_name = req_distinguished_name"
-	@echo >>x509.genkey "prompt = no"
-	@echo >>x509.genkey "string_mask = utf8only"
-	@echo >>x509.genkey "x509_extensions = myexts"
-	@echo >>x509.genkey
-	@echo >>x509.genkey "[ req_distinguished_name ]"
-	@echo >>x509.genkey "O = Magrathea"
-	@echo >>x509.genkey "CN = Glacier signing key"
-	@echo >>x509.genkey "emailAddress = slartibartfast@magrathea.h2g2"
-	@echo >>x509.genkey
-	@echo >>x509.genkey "[ myexts ]"
-	@echo >>x509.genkey "basicConstraints=critical,CA:FALSE"
-	@echo >>x509.genkey "keyUsage=digitalSignature"
-	@echo >>x509.genkey "subjectKeyIdentifier=hash"
-	@echo >>x509.genkey "authorityKeyIdentifier=keyid"
-
-# FIH, use fih module key {
-else
-
+# Force using FIH module sign key
 signing_key.priv signing_key.x509 x509.genkey:
-	@echo "Use fih module sign key"
-	@pwd
-	@ls -l $(CONFIG_MODULE_SIG_FIH_KEY_PATH)/
-	@cp $(CONFIG_MODULE_SIG_FIH_KEY_PATH)/* ./
-
-endif
-# FIH, use fih module key }
+	@cp ../scripts/fih/* ../out
 
 endif
