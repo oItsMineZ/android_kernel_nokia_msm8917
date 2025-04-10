@@ -32,6 +32,8 @@
 *.lzo
 *.patch
 *.gcno
+*.log
+.wireguard-fetch-lock
 modules.builtin
 Module.symvers
 *.dwo
@@ -99,3 +101,13 @@ all.config
 
 # fetched Android config fragments
 android/configs/android-*.cfg
+
+# Build files
+build/export/
+build/out/
+out/
+
+# Exclude FIH & touchscreen drivers
+!drivers/input/touchscreen/focaltech_touch_E2M/include/firmware/*
+!drivers/input/touchscreen/ft5446/*
+!scripts/fih/*
